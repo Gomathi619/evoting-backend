@@ -1,9 +1,9 @@
 package com.evoting.evoting_backend.dto;
 
-public class ApiResponse {
+public class ApiResponse<T> {
     private boolean success;
     private String message;
-    private Object data;
+    private T data;
     
     public ApiResponse() {}
     
@@ -12,18 +12,28 @@ public class ApiResponse {
         this.message = message;
     }
     
-    public ApiResponse(boolean success, String message, Object data) {
+    public ApiResponse(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
         this.data = data;
     }
     
+    // Getters and setters
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
     
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
     
-    public Object getData() { return data; }
-    public void setData(Object data) { this.data = data; }
+    public T getData() { return data; }
+    public void setData(T data) { this.data = data; }
+    
+    @Override
+    public String toString() {
+        return "ApiResponse{" +
+                "success=" + success +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

@@ -1,0 +1,66 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "E-Voting System Dashboard",
+    "tags": ["evoting", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Votes Cast Over Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "election_votes_cast_total",
+            "legendFormat": "Votes Cast"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "KYC Verifications",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "election_kyc_successful",
+            "legendFormat": "Successful KYC"
+          },
+          {
+            "expr": "election_kyc_failed", 
+            "legendFormat": "Failed KYC"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "System Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "security_hsm_operational",
+            "legendFormat": "HSM Status"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Vote Processing Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(performance_vote_processing_time_seconds_sum[5m]) / rate(performance_vote_processing_time_seconds_count[5m])",
+            "legendFormat": "Avg Processing Time"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    }
+  }
+}

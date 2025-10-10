@@ -24,9 +24,25 @@ public class VoteService {
             throw new ElectionException("Cannot cast vote, election is not open.");
         }
 
-        vote.setTrackingCode(UUID.randomUUID().toString());
+        // Generate UUID with debugging
+        String trackingCode = UUID.randomUUID().toString();
+        
+        // ✅ ADDED: Debug logging
+        System.out.println("=== VOTE SERVICE DEBUG ===");
+        System.out.println("Generated UUID: " + trackingCode);
+        System.out.println("UUID Length: " + trackingCode.length());
+        System.out.println("UUID Pattern: " + trackingCode.matches("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"));
+        System.out.println("=== END DEBUG ===");
+        
+        vote.setTrackingCode(trackingCode);
         vote.setTimestamp(LocalDateTime.now());
-        return voteRepository.save(vote);
+        
+        Vote savedVote = voteRepository.save(vote);
+        
+        // ✅ ADDED: Verify saved UUID
+        System.out.println("Saved vote tracking code: " + savedVote.getTrackingCode());
+        
+        return savedVote;
     }
 
     public Optional<Vote> getVoteByTrackingCode(String trackingCode) {

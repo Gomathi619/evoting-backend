@@ -26,17 +26,38 @@ public class VerificationController {
 
     @GetMapping("/vote/{trackingCode}")
     public Map<String, Object> verifyVote(@PathVariable String trackingCode) {
+        // ✅ ADDED: Debug input
+        System.out.println("=== VERIFICATION CONTROLLER DEBUG ===");
+        System.out.println("Verifying tracking code: " + trackingCode);
+        System.out.println("Code length: " + trackingCode.length());
+        
         Optional<Vote> voteOpt = voteRepository.findByTrackingCode(trackingCode);
-        if (voteOpt.isEmpty()) return Map.of("verified", false, "message", "Vote not found!");
+        System.out.println("Vote found in database: " + voteOpt.isPresent());
+        
+        Optional<BulletinBoardEntry> bbEntryOpt = bulletinBoardRepository.findByTrackingCode(trackingCode);
+        System.out.println("Entry found in bulletin board: " + bbEntryOpt.isPresent());
+        System.out.println("=== END DEBUG ===");
+
+        if (voteOpt.isEmpty()) {
+            return Map.of("verified", false, "message", "Vote not found!");
+        }
 
         Vote vote = voteOpt.get();
-        Optional<BulletinBoardEntry> bbEntryOpt = bulletinBoardRepository.findByTrackingCode(trackingCode);
-        if (bbEntryOpt.isEmpty()) return Map.of("verified", false, "message", "Not in bulletin board!");
+        if (bbEntryOpt.isEmpty()) {
+            return Map.of("verified", false, "message", "Not in bulletin board!");
+        }
 
         boolean voteMatches = vote.getEncryptedVote().equals(bbEntryOpt.get().getEncryptedVote());
 
-        String electionTitle = electionService.getElectionById(vote.getElectionId()).getTitle();
-        String candidateName = candidateService.getCandidateById(vote.getCandidateId()).getName();
+        String electionTitle = "Unknown";
+        String candidateName = "Unknown";
+        
+        try {
+            electionTitle = electionService.getElectionById(vote.getElectionId()).getTitle();
+            candidateName = candidateService.getCandidateById(vote.getCandidateId()).getName();
+        } catch (Exception e) {
+            System.out.println("Error getting election/candidate details: " + e.getMessage());
+        }
 
         return Map.of(
                 "verified", voteMatches,
@@ -67,13 +88,16 @@ public class VerificationController {
     @GetMapping("/bulletin-board/integrity")
     public Map<String, Object> verifyBulletinBoardIntegrity() {
         boolean integrityValid = bulletinBoardService.verifyBoardIntegrity();
-        BulletinBoardService.BulletinBoardStats stats = bulletinBoardService.getBoardStatistics();
-
+        
+        // ✅ FIXED: Use simple stats instead of non-existent methods
+        long totalEntries = bulletinBoardRepository.count();
+        Optional<BulletinBoardEntry> latestEntry = bulletinBoardRepository.findTopByOrderByTimestampDesc();
+        
         return Map.of(
                 "integrityValid", integrityValid,
-                "totalEntries", stats.getTotalEntries(),
-                "latestEntryId", stats.getLatestEntryId(),
-                "checkTime", stats.getCheckTime().toString(),
+                "totalEntries", totalEntries,
+                "latestEntryId", latestEntry.map(BulletinBoardEntry::getId).orElse(null),
+                "checkTime", java.time.LocalDateTime.now().toString(),
                 "message", integrityValid ? "Bulletin board integrity verified" : "Integrity compromised"
         );
     }

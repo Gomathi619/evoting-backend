@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "bulletin_board_entry")
 public class BulletinBoardEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,7 +14,10 @@ public class BulletinBoardEntry {
     private String previousHash;
     private String trackingCode;
     private Long electionId;
+    
+    @Column(columnDefinition = "TEXT") // ✅ ADD THIS LINE
     private String encryptedVote;
+    
     private LocalDateTime timestamp;
 
     public BulletinBoardEntry() {}
